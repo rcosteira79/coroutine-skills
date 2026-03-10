@@ -155,6 +155,34 @@ Box(
 )
 ```
 
+### Grouping related elements
+
+Use `mergeDescendants = true` to announce a composite item (e.g. a row with an icon and text) as a single unit instead of separate elements:
+
+```kotlin
+Row(
+    modifier = Modifier.semantics(mergeDescendants = true) {}
+) {
+    Icon(Icons.Default.Star, contentDescription = null)  // null — merged into parent
+    Text("4.8 rating")
+}
+// TalkBack announces: "4.8 rating"
+```
+
+Without `mergeDescendants`, TalkBack would announce the icon and text as two separate focusable items.
+
+### Section headings
+
+Mark section titles with `heading()` so screen reader users can jump between sections:
+
+```kotlin
+Text(
+    text = "Recent Orders",
+    style = MaterialTheme.typography.titleMedium,
+    modifier = Modifier.semantics { heading() }
+)
+```
+
 ### Minimum contrast
 
 - Body text: **4.5:1** against background (WCAG AA)

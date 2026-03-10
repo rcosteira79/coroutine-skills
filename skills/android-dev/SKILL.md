@@ -51,11 +51,30 @@ For implementation detail, defer to the `kotlin-coroutines` and `kotlin-flows` s
 
 ## Package Structure
 
+### Single-module apps
+
 - Prefer vertical feature packages (`feature/data`, `feature/domain`, `feature/presentation`) over horizontal shared packages. Create shared packages only when truly shared.
 - API logic: `data/api`, API models: `data/api/models`.
 - Cache logic: `data/cache`, cache models: `data/cache/models`.
 - `presentation/ui`: Compose-only code.
 - `presentation/models`: UI models and mappers.
+
+### Multi-module apps
+
+Follow a feature-vertical module structure:
+
+```
+:app                    ← entry point, wires features together
+:core:model             ← shared domain models (pure Kotlin, no Android deps)
+:core:data              ← repositories, data sources, Room DB, Retrofit
+:core:domain            ← use cases, repository interfaces
+:core:ui                ← shared composables, theme, design system
+:feature:<name>         ← self-contained feature: own UI, ViewModel, nav entry point
+```
+
+- `:feature:*` modules depend on `:core:domain` and `:core:ui` — never on each other
+- Domain models in `:core:model` have zero Android framework dependencies
+- See `android-gradle-logic` skill for Convention Plugin setup to share build config across modules
 
 ## Data Flow
 

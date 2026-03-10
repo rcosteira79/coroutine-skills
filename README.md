@@ -1,6 +1,6 @@
 # Android Skills for Claude Code
 
-Claude Code skills for Android and KMP development — covering architecture, testing, debugging, Jetpack Compose, coroutines, flows, and RxJava migration.
+Claude Code skills for Android and KMP development — covering architecture, data layer, networking, testing, debugging, Jetpack Compose, coroutines, flows, Gradle, and RxJava migration.
 
 ## Skills
 
@@ -31,6 +31,24 @@ Flow type selection (`Flow`/`StateFlow`/`SharedFlow`), operator chains, callback
 ### `rxjava-migration`
 Triggered only when you explicitly ask to migrate. Assesses complexity, maps RxJava types and operators to coroutines equivalents, and provides interop patterns for incremental migration.
 
+### `xml-to-compose-migration`
+Migrate Android XML layouts to Jetpack Compose — layout mapping tables (RecyclerView → LazyColumn, LinearLayout → Column/Row, etc.), attribute mapping, state migration from LiveData/ViewBinding, and incremental adoption via `ComposeView`.
+
+### `android-retrofit`
+Retrofit setup for Android — service interface patterns (`@GET`, `@POST`, `@Path`, `@Query`, `@Body`), coroutines integration, OkHttp configuration, Hilt module, and error handling in the repository layer.
+
+### `android-data-layer`
+Data layer implementation — Repository pattern as single source of truth, Room DAOs with `Flow`, offline-first strategies (stale-while-revalidate, outbox pattern), and model mapping between DTO/entity/domain types.
+
+### `coil-compose`
+Image loading in Compose with Coil — `AsyncImage` vs `SubcomposeAsyncImage` vs `rememberAsyncImagePainter`, `ImageRequest` configuration, performance in lazy lists, and Hilt setup for a shared `ImageLoader`.
+
+### `android-gradle-logic`
+Scalable Gradle build logic — Convention Plugins, composite builds, shared `compileSdk`/`minSdk`/Compose configuration across modules, and clean per-module `build.gradle.kts` files.
+
+### `gradle-build-performance`
+Gradle build optimisation — Build Scans, configuration cache, build cache, kapt→KSP migration, parallel execution, lazy task configuration, and a recommended `gradle.properties` baseline.
+
 ## Installation
 
 ### Claude Code
@@ -53,6 +71,12 @@ Skills are invoked automatically based on context:
 - Working with coroutines → `kotlin-coroutines` skill activates
 - Working with Flow/StateFlow/SharedFlow → `kotlin-flows` skill activates
 - Migrating from RxJava → ask Claude to migrate, `rxjava-migration` skill activates
+- Migrating XML layouts to Compose → `xml-to-compose-migration` skill activates
+- Setting up networking with Retrofit → `android-retrofit` skill activates
+- Implementing the data/repository layer → `android-data-layer` skill activates
+- Loading images with Coil → `coil-compose` skill activates
+- Setting up Gradle build logic → `android-gradle-logic` skill activates
+- Optimising build performance → `gradle-build-performance` skill activates
 
 ### Cursor, Windsurf, and other agentic editors
 
