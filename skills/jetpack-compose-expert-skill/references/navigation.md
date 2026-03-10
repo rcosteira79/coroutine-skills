@@ -397,6 +397,22 @@ fun MyScreen() {
 }
 ```
 
+### Don't: Pass complex objects as arguments — pass IDs instead
+
+```kotlin
+// ❌ Anti-pattern: complex object as argument
+navController.navigate(ProfileRoute(user = complexUserObject))
+
+// ✅ Correct: pass only the ID, fetch in ViewModel
+navController.navigate(ProfileRoute(userId = "user123"))
+
+// In ViewModel:
+class ProfileViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
+    private val route = savedStateHandle.toRoute<ProfileRoute>()
+    val user = userRepository.getUser(route.userId)
+}
+```
+
 ### Don't: Mix navigation approaches
 ```kotlin
 // ❌ Anti-pattern
@@ -412,5 +428,82 @@ object FeatureHome
 navigation<FeatureRoot>(startDestination = FeatureHome()) {
     composable<FeatureHome> { }
     composable<FeatureDetails> { }
+}
+```
+
+---
+
+## Adaptive Navigation
+
+Use `NavigationSuiteScaffold` for responsive navigation — bottom bar on phones, side rail on tablets, automatically:
+
+```kotlin
+@Composable
+fun AdaptiveApp() {
+    val navController = rememberNavController()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+
+    NavigationSuiteScaffold(
+        navigationSuiteItems = {
+            item(
+                icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
+                label = { Text("Home") },
+                selected = currentDestination?.hasRoute<Home>() == true,
+                onClick = {
+                    navController.navigate(Home) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            )
+        }
+    ) {
+        AppNavHost(navController = navController)
+    }
+}
+```
+
+---
+
+## Testing Navigation
+
+Use `TestNavHostController` to verify navigation destinations in instrumented tests.
+
+```kotlin
+// build.gradle.kts
+androidTestImplementation("androidx.navigation:navigation-testing:2.8.x")
+```
+
+```kotlin
+class NavigationTest {
+
+    @get:Rule
+    val composeTestRule = createComposeRule()
+
+    private lateinit var navController: TestNavHostController
+
+    @Before
+    fun setUp() {
+        composeTestRule.setContent {
+            navController = TestNavHostController(LocalContext.current)
+            navController.navigatorProvider.addNavigator(ComposeNavigator())
+            AppNavHost(navController = navController)
+        }
+    }
+
+    @Test
+    fun `given home screen, when profile tapped, then navigates to profile`() {
+        composeTestRule
+            .onNodeWithText("View Profile")
+            .performClick()
+
+        assertTrue(
+            navController.currentBackStackEntry?.destination?.hasRoute<Profile>() == true
+        )
+    }
 }
 ```

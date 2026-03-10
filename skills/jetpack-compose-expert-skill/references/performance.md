@@ -411,6 +411,76 @@ Button(colors = buttonColors) { }
 
 ---
 
+## Profiling Workflow
+
+When diagnosing Compose performance issues:
+
+1. **Start with code review** — look for the common code smells below before reaching for profiling tools
+2. **Profile if inconclusive** — use Layout Inspector in Android Studio to see recomposition counts; use Perfetto / System Trace for frame timing
+3. **Always profile release builds** — debug builds have significant overhead from Compose instrumentation; results from debug are not representative
+4. **Measure with Macrobenchmark** — for startup and scroll metrics, use Macrobenchmark to get reproducible numbers before and after
+
+```bash
+# Enable recomposition highlights in Android Studio:
+# Layout Inspector → Show Recomposition Counts
+```
+
+## Code Smells and Fixes
+
+### Unstable lambda captures
+
+```kotlin
+// Bad: new lambda instance every recomposition
+Button(onClick = { viewModel.doSomething(item) }) { ... }
+
+// Good: remember with key or method reference
+val onClick = remember(item) { { viewModel.doSomething(item) } }
+Button(onClick = onClick) { ... }
+```
+
+### Expensive computation without remember
+
+```kotlin
+// Bad: sorting runs on every recomposition
+@Composable
+fun ItemList(items: List<Item>) {
+    val sorted = items.sortedBy { it.name }
+    LazyColumn { items(sorted) { ... } }
+}
+
+// Good: cached until items changes
+@Composable
+fun ItemList(items: List<Item>) {
+    val sorted = remember(items) { items.sortedBy { it.name } }
+    LazyColumn { items(sorted) { ... } }
+}
+```
+
+### Missing keys in LazyColumn
+
+```kotlin
+// Bad: index-based identity causes recomposition on list changes
+LazyColumn {
+    items(items) { item -> ItemRow(item) }
+}
+
+// Good: stable key-based identity
+LazyColumn {
+    items(items, key = { it.id }) { item -> ItemRow(item) }
+}
+```
+
+### Unstable data class with collection
+
+```kotlin
+// Bad: List is not stable — Compose cannot skip this type
+data class UiState(val items: List<Item>, val isLoading: Boolean)
+
+// Good: ImmutableList from kotlinx.collections.immutable
+@Immutable
+data class UiState(val items: ImmutableList<Item>, val isLoading: Boolean)
+```
+
 ## Anti-Patterns
 
 ### Wrapping Everything in remember

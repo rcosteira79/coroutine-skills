@@ -11,6 +11,21 @@ Kotlin coroutines are built on **structured concurrency**: every coroutine runs 
 
 **Core principle:** Suspend functions must always be main-safe. The function doing blocking work owns the `withContext` call — callers should never need to switch dispatchers.
 
+## Diagnosing Coroutine Issues
+
+When reviewing or debugging coroutine code, triage the symptom first:
+
+| Symptom | Likely Cause | Fix |
+|---------|-------------|-----|
+| ANR / UI freeze | Blocking call on main thread | `withContext(Dispatchers.IO)` inside suspend fun |
+| Memory leak / zombie coroutine | `GlobalScope` or unbound scope | Replace with `viewModelScope`, `lifecycleScope`, or injected scope |
+| Incorrect lifecycle collection | `launchWhenStarted` (deprecated) | `repeatOnLifecycle(Lifecycle.State.STARTED)` |
+| Cancellation silently broken | `catch (e: Exception)` swallows `CancellationException` | Catch specific types; rethrow `CancellationException` |
+| Non-cancellable tight loop | No cancellation checkpoint | Add `ensureActive()` at loop start |
+| Hard to test dispatchers | Hardcoded `Dispatchers.IO` | Inject `CoroutineDispatcher` via constructor |
+| Race condition / wrong state | State exposed as `MutableStateFlow` | Encapsulate; expose read-only `StateFlow` |
+| Callback never cleaned up | No `awaitClose` in `callbackFlow` | Always add `awaitClose { removeListener() }` |
+
 ## Step 1: Project Context Check
 
 Before writing or modifying any coroutine code:
@@ -306,6 +321,21 @@ class LatestNewsViewModel(private val getLatestNews: GetLatestNewsUseCase) : Vie
 - Never launch coroutines in `onStart`/`onResume` without matching cancellation in `onStop`/`onPause`
 
 **viewModelScope in tests:** call `Dispatchers.setMain(testDispatcher)` before each test, `Dispatchers.resetMain()` after.
+
+**Callback-to-Flow conversion** — use `callbackFlow` with `awaitClose`:
+
+```kotlin
+fun locationUpdates(): Flow<Location> = callbackFlow {
+    val listener = LocationListener { location ->
+        trySend(location)
+    }
+    locationManager.requestLocationUpdates(listener)
+
+    awaitClose { locationManager.removeUpdates(listener) }
+}
+```
+
+`awaitClose` is mandatory — it runs when the collector cancels or the flow completes, ensuring the listener is always unregistered.
 
 ## KMP-Specific Rules
 

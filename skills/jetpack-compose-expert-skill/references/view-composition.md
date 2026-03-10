@@ -592,4 +592,43 @@ fun ParentScreen(viewModel: ParentViewModel) {
 
 ---
 
+## Previews
+
+Create a private preview function for every public composable.
+
+```kotlin
+@Composable
+fun LoginButton(
+    isEnabled: Boolean,
+    onLogin: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Button(
+        onClick = onLogin,
+        enabled = isEnabled,
+        modifier = modifier
+    ) {
+        Text("Log in")
+    }
+}
+
+@Preview(showBackground = true)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun LoginButtonPreview() {
+    AppTheme {
+        LoginButton(isEnabled = true, onLogin = {})
+    }
+}
+```
+
+Rules:
+- Mark preview functions `private` — they are build artifacts, not API
+- Always wrap in your app theme so colors and typography match production
+- Include both Light and Dark mode previews for UI components
+- Pass static dummy data to stateless composables — never call `viewModel()` in a preview
+- Use `@PreviewParameter` for composables with many state variants
+
+---
+
 **Source references:** `androidx.compose.material3`, `androidx.compose.ui.tooling.preview`, `androidx.compose.runtime.CompositionLocal`

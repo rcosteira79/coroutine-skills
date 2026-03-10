@@ -126,6 +126,97 @@ fun `given loading state, when screen renders, then shows progress indicator`() 
 
 Use `semantics` / `testTag` in production Composables to avoid brittle text-based selectors.
 
+## Hilt Testing
+
+Use `@HiltAndroidTest` with `HiltAndroidRule` to inject real Hilt dependencies in instrumented tests.
+
+```kotlin
+@HiltAndroidTest
+class UserRepositoryTest {
+
+    @get:Rule
+    var hiltRule = HiltAndroidRule(this)
+
+    @Inject
+    lateinit var database: AppDatabase
+    private lateinit var dao: UserDao
+
+    @Before
+    fun setUp() {
+        hiltRule.inject()
+        dao = database.userDao()
+    }
+
+    @Test
+    fun `given user saved, when queried by id, then returns user`() = runTest {
+        // Given
+        val inputUser = User(id = "1", name = "Alice")
+        dao.insert(inputUser)
+
+        // When
+        val actualUser = dao.findById("1")
+
+        // Then
+        assertEquals(inputUser, actualUser)
+    }
+}
+```
+
+For unit tests with Hilt (without instrumentation), use `@TestInstallIn` to replace modules with fakes.
+
+## Screenshot Testing with Roborazzi
+
+Roborazzi runs screenshot tests on the JVM via Robolectric — no emulator required. Use it to catch visual regressions.
+
+### Setup
+
+```toml
+# libs.versions.toml
+[versions]
+roborazzi = "1.x.x"
+
+[plugins]
+roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }
+
+[libraries]
+roborazzi = { group = "io.github.takahirom.roborazzi", name = "roborazzi", version.ref = "roborazzi" }
+```
+
+```kotlin
+// module build.gradle.kts
+plugins {
+    alias(libs.plugins.roborazzi)
+}
+```
+
+### Writing a Screenshot Test
+
+```kotlin
+@RunWith(AndroidJUnit4::class)
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+@Config(sdk = [33], qualifiers = RobolectricDeviceQualifiers.Pixel5)
+class LoginScreenScreenshotTest {
+
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+
+    @Test
+    fun `given loading state, captures loading screen`() {
+        // Given
+        composeTestRule.setContent {
+            AppTheme {
+                LoginScreen(uiState = LoginUiState.Loading, onLogin = {})
+            }
+        }
+
+        // Then
+        composeTestRule.onRoot().captureRoboImage()
+    }
+}
+```
+
+Screenshot tests exercise visual state you can't assert with `assertIsDisplayed()`. Write one per meaningful UI state (loading, error, success, empty).
+
 ## Gradle Commands
 
 ```bash
@@ -143,6 +234,14 @@ Use `semantics` / `testTag` in production Composables to avoid brittle text-base
 
 # Run instrumented tests for a specific module
 ./gradlew :feature:login:connectedAndroidTest
+```
+
+```bash
+# Record screenshot baselines
+./gradlew recordRoborazziDebug
+
+# Verify screenshots against baselines (CI)
+./gradlew verifyRoborazziDebug
 ```
 
 ## ViewModel Test Template (Given-When-Then)
