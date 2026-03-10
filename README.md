@@ -10,6 +10,9 @@ Senior Android engineering knowledge and best practices for Android and KMP proj
 ### `android-tdd`
 Test-driven development for Android/KMP — extends TDD with Android's three-tier test model, fake-first strategy, coroutine testing, and Compose UI testing.
 
+### `android-ux`
+Material Design 3 UX principles for Android — touch targets (48×48dp), 8dp spacing grid, navigation patterns (Bottom Bar, Rail, Drawer), safe area handling, accessibility, animation timing, and keyboard input types.
+
 ### `android-debugging`
 Debugging Android and KMP issues — Logcat, ADB, ANR traces, R8 stack trace decoding, memory leaks, Gradle build failures, and Compose recomposition bugs.
 
@@ -44,6 +47,7 @@ Skills are invoked automatically based on context:
 - Working on Android or KMP code → `android-dev` skill activates
 - Writing or fixing tests → `android-tdd` skill activates
 - Debugging Android issues → `android-debugging` skill activates
+- Designing or reviewing Android UI → `android-ux` skill activates
 - Working with Compose → `jetpack-compose-expert-skill` activates
 - Verifying framework internals → `aosp-search` skill activates
 - Working with coroutines → `kotlin-coroutines` skill activates
@@ -67,6 +71,7 @@ These skills drew inspiration from:
 
 - [awesome-android-agent-skills](https://github.com/new-silvermoon/awesome-android-agent-skills)
 - [compose-skill](https://github.com/aldefy/compose-skill)
+- [ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill)
 
 ## License
 

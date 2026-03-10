@@ -45,6 +45,7 @@ Read the relevant reference file(s) from `references/` before answering:
 | Recomposition skipping, stability, baseline profiles, benchmarking | `references/performance.md` |
 | Semantics, content descriptions, traversal order, testing | `references/accessibility.md` |
 | Removed/replaced APIs, migration paths from older Compose versions | `references/deprecated-patterns.md` |
+| `AndroidView` interop, `LiveData` migration, feature modularization | `references/interop-modularization.md` |
 | **Styles API** (experimental): `Style {}`, `MutableStyleState`, `Modifier.styleable()` | `references/styles-experimental.md` |
 
 ### 3. Apply and verify

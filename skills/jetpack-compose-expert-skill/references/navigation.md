@@ -433,6 +433,56 @@ navigation<FeatureRoot>(startDestination = FeatureHome()) {
 
 ---
 
+## Navigation Events (One-Time Actions)
+
+Use `Channel` + `receiveAsFlow()` to emit navigation events from the ViewModel — **not** `SharedFlow` or `StateFlow`.
+
+`SharedFlow` replays to new collectors, which causes navigation to fire again when the UI resubscribes (e.g. after rotation). `Channel` delivers each event exactly once.
+
+```kotlin
+class LoginViewModel : ViewModel() {
+
+    private val _navigationEvents = Channel<LoginNavEvent>()
+    val navigationEvents = _navigationEvents.receiveAsFlow()
+
+    fun onLoginSuccess() {
+        viewModelScope.launch {
+            _navigationEvents.send(LoginNavEvent.GoToHome)
+        }
+    }
+}
+
+sealed interface LoginNavEvent {
+    data object GoToHome : LoginNavEvent
+    data class ShowError(val message: String) : LoginNavEvent
+}
+```
+
+Collect in the composable using `LaunchedEffect` with `Dispatchers.Main.immediate` to avoid a one-frame delay:
+
+```kotlin
+@Composable
+fun LoginScreen(
+    viewModel: LoginViewModel = hiltViewModel(),
+    onNavigateToHome: () -> Unit
+) {
+    LaunchedEffect(Unit) {
+        viewModel.navigationEvents
+            .flowOn(Dispatchers.Main.immediate)
+            .collect { event ->
+                when (event) {
+                    LoginNavEvent.GoToHome -> onNavigateToHome()
+                    is LoginNavEvent.ShowError -> { /* show snackbar */ }
+                }
+            }
+    }
+}
+```
+
+**Why not `SharedFlow`?** A `SharedFlow(replay=0)` looks safe but still risks re-delivery if the subscriber briefly drops and resubscribes. `Channel` has strict single-consumer, exactly-once semantics.
+
+---
+
 ## Adaptive Navigation
 
 Use `NavigationSuiteScaffold` for responsive navigation — bottom bar on phones, side rail on tablets, automatically:
