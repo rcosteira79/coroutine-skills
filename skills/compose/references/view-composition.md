@@ -631,4 +631,34 @@ Rules:
 
 ---
 
+## Custom Layout — Constraint Audit
+
+When writing a custom `Layout` composable, audit **every** `.measure(constraints.copy(...))` call — not just the placement calls.
+
+**Rule:** Decorative children (dividers, backgrounds, overlays) must have both `minWidth = 0` and `minHeight = 0` zeroed out, or they silently inherit the parent's minimum size and render incorrectly.
+
+```kotlin
+// ❌ Divider inherits minHeight from parent — renders as tall as the toolbar, not 1dp
+val dividerPlaceable = measurables
+    .first { it.layoutId == "divider" }
+    .measure(constraints.copy(minWidth = 0))  // minHeight not zeroed!
+
+// ✅ Correct — decorative child has all minimums cleared
+val dividerPlaceable = measurables
+    .first { it.layoutId == "divider" }
+    .measure(constraints.copy(minWidth = 0, minHeight = 0))
+```
+
+This bug is especially silent: the oversized decorative child is often hidden behind structural siblings, so it causes no visible crash — just wrong layout or invisible elements.
+
+**Checklist for each measurable in a custom Layout:**
+
+| Child role | minWidth | minHeight | maxWidth | maxHeight |
+|---|---|---|---|---|
+| Structural (content, title) | depends | depends | constrain | depends |
+| Decorative (divider, background, overlay) | `0` | `0` | usually `maxWidth` | usually layout height |
+| Navigation icon / action | `0` | inherited OK | full constraints | full constraints |
+
+---
+
 **Source references:** `androidx.compose.material3`, `androidx.compose.ui.tooling.preview`, `androidx.compose.runtime.CompositionLocal`
