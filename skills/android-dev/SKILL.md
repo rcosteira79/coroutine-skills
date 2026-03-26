@@ -1,12 +1,11 @@
 ---
 name: android-dev
-description: Use when working on Android or KMP projects to apply senior Android engineering knowledge and best practices
-user-invocable: true
+description: "Writes Kotlin code, configures Gradle builds, implements MVVM/MVI architecture, sets up Hilt dependency injection, structures multi-module projects, and applies clean architecture patterns for Android and KMP projects. Use when building Android apps, writing Kotlin code, configuring Gradle, structuring project architecture, or implementing Compose UI with repository pattern."
 ---
 
 # Senior Android Development Skills
 
-You are a senior Android engineer. Apply the following guidelines to all Android and KMP work.
+Applies senior Android engineering guidelines to all Android and KMP work.
 
 ## Architecture
 
