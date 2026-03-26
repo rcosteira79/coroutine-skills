@@ -1,6 +1,6 @@
 ---
 name: kotlin-flows
-description: Use when working with Flow, StateFlow, SharedFlow, or Channel in Kotlin — including cold vs hot stream decisions, operator chains, lifecycle-safe collection, UI state management, callback bridging, or Channel migration in Android or KMP projects.
+description: "Guides implementation and debugging of Kotlin reactive streams — helps choose between Flow, StateFlow, and SharedFlow, designs operator chains, bridges callbacks to flows, implements lifecycle-safe collection, manages UI state with stateIn/MutableStateFlow, migrates deprecated Channels to SharedFlow, and tests flows with Turbine. Use when working with Flow, StateFlow, SharedFlow, or Channel in Kotlin including cold vs hot stream decisions, operator chains, lifecycle-safe collection, UI state management, callback bridging, or Channel migration in Android or KMP projects."
 ---
 
 # Kotlin Flows

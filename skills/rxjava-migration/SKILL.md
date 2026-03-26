@@ -1,6 +1,6 @@
 ---
 name: rxjava-migration
-description: Use only when the user explicitly requests migration from RxJava to Kotlin coroutines and/or flows.
+description: "Migrates RxJava reactive code to Kotlin coroutines and Flow — converts Observable/Single/Completable chains to suspend functions and Flow, maps RxJava Schedulers to coroutine Dispatchers, transforms Subject types to StateFlow/SharedFlow, provides interop bridging for incremental migration, and handles complex retry/backpressure patterns. Use only when the user explicitly requests migration from RxJava to Kotlin coroutines and/or flows."
 ---
 
 # RxJava Migration
